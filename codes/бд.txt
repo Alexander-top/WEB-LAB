@@ -1,0 +1,92 @@
+-- Удаляем старые таблицы, если есть
+DROP TABLE IF EXISTS application_languages;
+DROP TABLE IF EXISTS applications;
+DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS admins;
+DROP TABLE IF EXISTS programming_languages;
+
+-- ============================================
+-- 1. Таблица администраторов
+-- ============================================
+CREATE TABLE admins (
+    id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    login VARCHAR(50) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Добавляем администратора (логин: admin, пароль: admin)
+INSERT INTO admins (login, password_hash) 
+VALUES ('admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi');
+
+-- ============================================
+-- 2. Таблица пользователей
+-- ============================================
+CREATE TABLE users (
+    id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    login VARCHAR(50) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================================
+-- 3. Таблица заявок
+-- ============================================
+CREATE TABLE applications (
+    id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    user_id INT UNSIGNED NULL,
+    full_name VARCHAR(150) NOT NULL,
+    phone VARCHAR(20) NOT NULL,
+    email VARCHAR(100) NOT NULL,
+    birth_date DATE NOT NULL,
+    gender ENUM('male', 'female') NOT NULL,
+    bio TEXT NOT NULL,
+    contract_accepted TINYINT(1) NOT NULL DEFAULT 0,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================================
+-- 4. Таблица языков программирования
+-- ============================================
+CREATE TABLE programming_languages (
+    id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    name VARCHAR(50) NOT NULL UNIQUE,
+    PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Заполняем языки
+INSERT INTO programming_languages (id, name) VALUES 
+(1, 'Pascal'),
+(2, 'C'),
+(3, 'C++'),
+(4, 'JavaScript'),
+(5, 'PHP'),
+(6, 'Python'),
+(7, 'Java'),
+(8, 'Haskell'),
+(9, 'Clojure'),
+(10, 'Prolog'),
+(11, 'Scala'),
+(12, 'Go');
+
+-- ============================================
+-- 5. Таблица связи заявок с языками
+-- ============================================
+CREATE TABLE application_languages (
+    application_id INT UNSIGNED NOT NULL,
+    language_id INT UNSIGNED NOT NULL,
+    PRIMARY KEY (application_id, language_id),
+    FOREIGN KEY (application_id) REFERENCES applications(id) ON DELETE CASCADE,
+    FOREIGN KEY (language_id) REFERENCES programming_languages(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================================
+-- Проверка
+-- ============================================
+SHOW TABLES;
+SELECT * FROM admins;
+SELECT * FROM programming_languages;
